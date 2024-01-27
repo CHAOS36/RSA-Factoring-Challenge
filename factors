@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+check_factor()
+{
+	if [ $# -ne 3 ];
+        then
+                args=("$@")
+                count=0
+                pipox=1
+                for a in ${args[*]};
+                do
+                        if [ $count -gt 1 ];
+                        then
+                                pipox=$(echo $a*$pipox | bc)
+                        fi
+                        count=$((count + 1))
+                done
+        else
+                pipox=$3
+        fi
+
+        num1=$2
+        num=$(echo "$1" | tr ':' '=')
+
+        result=$(echo "if($pipox > $num1) 1 else 0" | bc)
+	        if ((result == 1)); then
+		        numcp=$num1
+		        num1=$pipox
+		        pipox=$numcp
+                fi
+
+        echo "$num$num1*$pipox"
+}
+
+if [ $# -ne 1 ]
+then
+        echo 'Usage: factors <file>'
+        exit 1
+else
+
+        while read i
+        do
+
+                result=$(factor "$i")
+                check_factor $result
+
+        done < "$1"
+fi
